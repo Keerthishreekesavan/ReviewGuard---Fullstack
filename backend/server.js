@@ -21,6 +21,7 @@ const io = new Server(server, {
     origin: process.env.CLIENT_URL || 'http://localhost:5173',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     credentials: true
+  },
   // Enforce native websockets in production to avoid long-polling overhead/failures
   transports: ['websocket'] 
 });
