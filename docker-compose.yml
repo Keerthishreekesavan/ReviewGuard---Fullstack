@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    environment:
+      # These will pull from a local .env file in the same directory as docker-compose.yml
+      # Make sure to copy backend/.env to .env in the root folder before deploying!
+      - MONGO_URI=${MONGO_URI}
+      - JWT_SECRET=${JWT_SECRET}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - PORT=5000
+      - CLIENT_URL=http://localhost  # Will be the host frontend URL in production
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+    depends_on:
+      - redis
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    environment:
+      # Inject any frontend env variables here. 
+      # Since it builds at container start, we optionally can pass build args if Vite needs them.
+      - VITE_API_BASE_URL=http://localhost:5000/api
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+
+volumes:
+  redis_data:
